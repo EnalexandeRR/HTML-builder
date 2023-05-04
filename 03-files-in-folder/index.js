@@ -1,5 +1,4 @@
 const fs = require('fs');
-const { error } = require('console');
 const path = require('path');
 
 const folderPath = path.join(__dirname, 'secret-folder');
