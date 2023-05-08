@@ -68,7 +68,9 @@ async function BuildHtml() {
       fs.promises
         .readFile(path.join(__dirname, 'components', component), 'utf8')
         .then((content) => {
-          componentsContent[component.split('.')[0]] = content;
+          if (component.split('.')[1] === 'html') {
+            componentsContent[component.split('.')[0]] = content;
+          }
         });
     });
   });
