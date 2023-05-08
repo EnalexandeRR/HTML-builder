@@ -14,19 +14,29 @@ async function CreateDistFolders() {
   });
 }
 
-// async function CopyAssets(path, parentPath = '') {
-//   const innerData = await fs.promises.readdir(path, { withFileTypes: true });
+async function CopyAssets(source, destination) {
+  const innerData = await fs.promises.readdir(source, { withFileTypes: true });
 
-//   innerData.forEach((fileOrFolder) => {
-//     console.log(fileOrFolder);
-//     if (!fileOrFolder.isFile()) {
-//       // fs.promises.mkdir(path.join(pathToFinalDist, 'assets', fileOrFolder.name), {
-//       //   recursive: true,
-//       // });
-//     }
-//   });
-//   return innerData;
-// }
+  innerData.forEach((fileOrFolder) => {
+    if (fileOrFolder.isFile() === false) {
+      fs.promises
+        .mkdir(path.join(destination, fileOrFolder.name), {
+          recursive: true,
+        })
+        .then(() =>
+          CopyAssets(
+            path.join(source, fileOrFolder.name),
+            path.join(destination, fileOrFolder.name),
+          ),
+        );
+    } else if (fileOrFolder.isFile() === true) {
+      fs.promises.copyFile(
+        path.join(source, fileOrFolder.name),
+        path.join(destination, fileOrFolder.name),
+      );
+    }
+  });
+}
 
 async function MergeStyles() {
   const pathToStyles = path.join(__dirname, 'styles');
@@ -68,15 +78,14 @@ async function BuildHtml() {
 
   Object.keys(componentsContent).forEach((key) => {
     finalHtmlContent = finalHtmlContent.replace(`{{${key}}}`, componentsContent[key]);
-    console.log(finalHtmlContent);
   });
   fs.promises.writeFile(path.join(pathToFinalDist, 'index.html'), finalHtmlContent, 'utf8');
 }
 
 async function BuildProject() {
   await CreateDistFolders();
-  // CopyAssets(pathToAssets);
-  MergeStyles();
+  await MergeStyles();
+  await CopyAssets(pathToAssets, path.join(pathToFinalDist, 'assets'));
   BuildHtml();
 }
 
