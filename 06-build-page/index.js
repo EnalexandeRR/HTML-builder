@@ -17,9 +17,9 @@ async function CreateDistFolders() {
 async function CopyAssets(source, destination) {
   const innerData = await fs.promises.readdir(source, { withFileTypes: true });
 
-  innerData.forEach((fileOrFolder) => {
+  innerData.forEach(async (fileOrFolder) => {
     if (fileOrFolder.isFile() === false) {
-      fs.promises
+      await fs.promises
         .mkdir(path.join(destination, fileOrFolder.name), {
           recursive: true,
         })
@@ -30,7 +30,7 @@ async function CopyAssets(source, destination) {
           ),
         );
     } else if (fileOrFolder.isFile() === true) {
-      fs.promises.copyFile(
+      await fs.promises.copyFile(
         path.join(source, fileOrFolder.name),
         path.join(destination, fileOrFolder.name),
       );
